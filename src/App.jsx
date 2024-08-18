@@ -15,12 +15,11 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/" element={<Redirect Protect={Login} />} />
-        <Route path="/register" element={<Redirect Protect={Register} />} />
-        <Route path="/dashboard" element={< Dashboard />} />
-        <Route path="/casetracker" element={< CaseTracker />} />
-        <Route path="/projecttracker" element={< ProjectTracker />} />
-        <Route path="/test" element={< Test />} />  
+        <Route path="/" element={<Redirect Component={Login} />} />
+        <Route path="/register" element={<Redirect Component={Register} />} />
+        <Route path="/dashboard" element={<Protected Component={Dashboard} />} />
+        <Route path="/casetracker" element={<Protected Component={CaseTracker} />} />
+        <Route path="/projecttracker" element={<Protected Component={ProjectTracker} />} /> 
       </Routes>
     </AuthProvider>
   );

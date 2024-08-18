@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const Protected = ({ Protect }) => {
+const Protected = ({ Component }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -13,7 +13,11 @@ const Protected = ({ Protect }) => {
     }
   }, [isAuthenticated, navigate]);
 
-  return isAuthenticated ? <Protect /> : null;
+  return(
+    <>
+      <Component />
+    </>
+  )
 };
 
 export default Protected;

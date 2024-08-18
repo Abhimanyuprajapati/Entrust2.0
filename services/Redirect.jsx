@@ -3,9 +3,11 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const Redirect = ({ Protect }) => {
+const Redirect = ({ Component }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  console.log("this is redireact",isAuthenticated);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -13,7 +15,11 @@ const Redirect = ({ Protect }) => {
     }
   }, [isAuthenticated, navigate]);
 
-  return !isAuthenticated ? <Protect /> : null;
+  return(
+    <>
+      <Component />
+    </>
+  )
 };
 
 export default Redirect;
