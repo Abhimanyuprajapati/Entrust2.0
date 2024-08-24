@@ -90,6 +90,24 @@ export const Dashboard = () => {
   const handleCaseTrackerClick = () => navigate("/dashboard/casetracker");
   const handleProjectTrackerClick = () => navigate("/dashboard/projecttracker");
 
+
+  const getPageTitle = () => {
+    switch (location.pathname) {
+      case "/dashboard":
+        return "Dashboard";
+      case "/dashboard/invoices":
+        return "Invoices";
+      case "/dashboard/approvals":
+        return "Approvals";
+      case "/dashboard/casetracker":
+        return "Case Tracker";
+      case "/dashboard/projecttracker":
+        return "Project Tracker";
+      default:
+        return "Dashboard";
+    }
+  };
+
   return (
     <>
       <div
@@ -453,7 +471,7 @@ export const Dashboard = () => {
                       className="page-title d-flex flex-column justify-content-center flex-wrap me-3 mb-5 mb-lg-0"
                     >
                       <h1 className="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                        Dashboard
+                      {getPageTitle()}
                       </h1>
 
                       <ul className="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
@@ -471,7 +489,7 @@ export const Dashboard = () => {
                         </li>
 
                         <li className="breadcrumb-item text-muted">
-                          Dashboard
+                        {getPageTitle()}
                         </li>
                       </ul>
                     </div>
