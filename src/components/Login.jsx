@@ -8,7 +8,7 @@ import "react-multi-carousel/lib/styles.css";
 import { bannerData } from "./bannerdata";
 import accreditation from "../assets/Accreditation.png";
 import { useAuth } from "../../context/AuthContext";
-import { Estimate } from "./login/Estimate";
+
 
 const Login = () => {
   const navigate = useNavigate();
@@ -97,13 +97,7 @@ const Login = () => {
 
   ///////////////////////////////////////////////////
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const handleShowModal = () => {
-    setIsModalVisible(true);
-  };
-  const handleCloseModal = () => {
-    setIsModalVisible(false);
-  };
+
 
   return (
     <>
@@ -243,18 +237,6 @@ const Login = () => {
                   </div>
                 </form>
               </div>
-            </div>
-
-            
-
-            <div>
-              <button
-                className="btn btn-sm btn-primary align-self-center"
-                onClick={handleShowModal}
-              >
-                ESTIMATE YOUR COST
-              </button>
-              {isModalVisible && <Estimate onClose={handleCloseModal} />}
             </div>
 
 
