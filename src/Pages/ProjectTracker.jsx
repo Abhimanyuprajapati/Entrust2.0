@@ -9,7 +9,7 @@ import logoDark from "../assets/media/logos/neuralit-logo-dark.png";
 import { useAuth } from "../../context/AuthContext";
 import { AddNewProject } from "../components/casetracker/AddNewProject";
 import { AddNewCase } from "../components/casetracker/AddNewCase";
-import { CaseTrackerRecord } from "../components/casetracker/CaseTrackerRecord";
+import { ProjectTrackerRecord } from "../components/projecttracker/ProjectTrackerRecord";
 
 
 export const ProjectTracker = () => {
@@ -53,7 +53,7 @@ export const ProjectTracker = () => {
         const response = await logout();
         if (response.status === 200) {
           toast.success(response.data.message || "Logout successful!");
-          setTimeout(() => navigate("/login"), 500);
+          setTimeout(() => navigate("/"), 500);
         } else {
           toast.error(response.data.message || "Logout failed");
         }
@@ -71,18 +71,18 @@ export const ProjectTracker = () => {
   
     // this is case tracker page
   
-    const [activeComponent, setActiveComponent] = useState("CaseTrackerRecord");
+    const [activeComponent, setActiveComponent] = useState("ProjectTrackerRecord");
   
     const renderComponent = () => {
       switch (activeComponent) {
-          case "CaseTrackerRecord":
-              return <CaseTrackerRecord />;
+          case "ProjectTrackerRecord":
+              return <ProjectTrackerRecord />;
           case "AddNewProject":
               return <AddNewProject />;
           case "AddNewCase":
               return <AddNewCase />;
           default:
-              return <CaseTrackerRecord />;
+              return <ProjectTrackerRecord />;
       }
     };
   return (
@@ -281,6 +281,17 @@ export const ProjectTracker = () => {
                                 </i>
                               </span>
                               <span className="menu-title">Case Tracker</span>
+                            </a>
+                          </div>
+                          <div className="menu-item" onClick={ProjectTracker}>
+                            <a className="menu-link" >
+                              <span className="menu-icon">
+                                <i className="nit-dt nit-rocket fs-2">
+                                  <span className="path1"></span>
+                                  <span className="path2"></span>
+                                </i>
+                              </span>
+                              <span className="menu-title">Project Tracker</span>
                             </a>
                           </div>
                           <div className="menu-item">
@@ -550,7 +561,7 @@ export const ProjectTracker = () => {
                       className="page-title d-flex flex-column justify-content-center flex-wrap me-3 mb-5 mb-lg-0"
                     >
                       <h1 className="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                        Case Tracker
+                        Project Tracker
                       </h1>
 
                       <ul className="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
@@ -568,7 +579,7 @@ export const ProjectTracker = () => {
                         </li>
 
                         <li className="breadcrumb-item text-muted">
-                          Case Tracker
+                          Project Tracker
                         </li>
                       </ul>
                     </div>
@@ -1323,7 +1334,7 @@ export const ProjectTracker = () => {
               <div>
                 <button
                   className="btn btn-sm btn-primary me-2"
-                  onClick={() => setActiveComponent("CaseTrackerRecord")}
+                  onClick={() => setActiveComponent("ProjectTrackerRecord")}
                 >
                   Show Cases
                 </button>

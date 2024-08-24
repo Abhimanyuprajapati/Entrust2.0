@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import Accordion from "react-bootstrap/Accordion";
+import { useAuth } from "../../../context/AuthContext";
+import toast, { Toaster } from "react-hot-toast";
 
 export const AddNewCase = () => {
+  const { createCase, uploadFile } = useAuth();
   const [project, setProject] = useState("");
   const [assignedTo, setAssignedTo] = useState("Unassigned");
   const [status, setStatus] = useState("Open");
   const [priority, setPriority] = useState("Normal");
   const [type, setType] = useState("Task");
+  const [dueDate, setDueDate] = useState("");
+  const [dateDelivered, setDateDelivered] = useState("");
 
-  // this is notification
   const [selectedTags, setSelectedTags] = useState([]);
   const users = [
     "abdullah.p",
@@ -42,6 +46,7 @@ export const AddNewCase = () => {
     "jayshri.d",
     "jyoti.t",
   ];
+
   const toggleTag = (tag) => {
     setSelectedTags((prevSelectedTags) =>
       prevSelectedTags.includes(tag)
@@ -49,14 +54,8 @@ export const AddNewCase = () => {
         : [...prevSelectedTags, tag]
     );
   };
+
   const isSelected = (tag) => selectedTags.includes(tag);
-
-  // submit button
-  const handleSave = () => {
-    alert("Settings have been saved.");
-  };
-
-  ///////////////////////
 
   const [leftItems, setLeftItems] = useState([
     { id: 1, name: "Item 1" },
@@ -122,7 +121,6 @@ export const AddNewCase = () => {
     setRightItems([]);
   };
 
-  ///////////////////
   const [isFreeCase, setIsFreeCase] = useState(false);
   const [isSampleCase, setIsSampleCase] = useState(false);
   const [pageCount, setPageCount] = useState("");
@@ -147,13 +145,84 @@ export const AddNewCase = () => {
     });
   };
 
-  //////////////////////////////////////////
-  const [showBenchmarking, setShowBenchmarking] = useState(false);
   const [base, setBase] = useState("");
   const [benchmark, setBenchmark] = useState("");
 
-  const toggleBenchmarking = () => {
-    setShowBenchmarking(!showBenchmarking);
+  const [files, setFiles] = useState([]);
+
+  // Handle file selection
+  const handleFileChange = (e) => {
+    const newFiles = Array.from(e.target.files); // Convert FileList to an array
+    setFiles((prevFiles) => [...prevFiles, ...newFiles]); // Append new files to the existing files
+  };
+
+  // Handle file upload
+  const handleSubmit = async () => {
+    const formData = new FormData();
+
+    for (let i = 0; i < files.length; i++) {
+      formData.append("files", files[i]);
+    }
+
+    // Append the filepath to the FormData object
+    formData.append("filepath", "/home/neuralit/TestingUploads");
+
+    try {
+      const response = await uploadFile(formData);
+      toast.success("Files uploaded successfully");
+      console.log("Upload response:", response);
+    } catch (error) {
+      toast.error("Error uploading files");
+      console.error("Upload error:", error);
+    }
+  };
+
+  const handleSave = async () => {
+    handleSubmit();
+
+    try {
+      const data = {
+        project_id:
+          project === "Project 1" ? 1 : project === "Project 2" ? 2 : 0,
+        client_id: 790,
+        case_title: document.querySelector('input[name="title"]').value,
+        case_sub_title: document.querySelector('input[name="subtitle"]').value,
+        case_body: document.querySelector('input[name="body"]').value,
+        due_date: dueDate,
+        date_delivered: dateDelivered,
+        assign_to:
+          assignedTo === "User 1" ? 1 : assignedTo === "User 2" ? 2 : 0,
+        case_status: status === "Open" ? 0 : status === "In Progress" ? 1 : 2,
+        case_priority: priority === "Normal" ? 0 : priority === "High" ? 1 : 2,
+        created_by: 1,
+        updated_by: 0,
+        tags: selectedTags,
+        type: type,
+        is_free_case: isFreeCase,
+        is_sample_case: isSampleCase,
+        page_count: pageCount,
+        variable_values: variableValues,
+        finalize_case_estimate: finalizeCaseEstimate,
+        follow_up_date: followUpDate,
+        right_items: rightItems.map((item) => item.id),
+        benchmarking: {
+          base,
+          benchmark,
+        },
+      };
+
+      console.log(data);
+
+      const response = await createCase(data);
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Case created successfully!");
+      } else {
+        toast.error("Failed to save the case. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error:", error.message);
+      toast.error(`Failed to process: ${error.message}`);
+    }
   };
 
   return (
@@ -194,7 +263,7 @@ export const AddNewCase = () => {
                 placeholder="File"
               />
             </div>
-            <div className="d-flex align-items-center gap-20">
+            <div className="d-flex align-items-center gap-5">
               <div>
                 <label className="required form-label">Due Date</label>
                 <br />
@@ -203,6 +272,9 @@ export const AddNewCase = () => {
                   name="due date"
                   title="The due date for this case"
                   placeholder="Project Name"
+                  class="form-control"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
                 />
               </div>
               <div>
@@ -213,6 +285,9 @@ export const AddNewCase = () => {
                   name="due date"
                   title="The delivery date for this case"
                   placeholder="Project Name"
+                  class="form-control"
+                  value={dateDelivered}
+                  onChange={(e) => setDateDelivered(e.target.value)}
                 />
               </div>
             </div>
@@ -226,9 +301,10 @@ export const AddNewCase = () => {
             <label className="required form-label">Project</label>
           </Accordion.Header>
           <Accordion.Body>
-            <div>
-              <label>Project:</label>
+            <div className="form-group mb-3">
+              <label className="form-label">Project:</label>
               <select
+                className="form-select"
                 value={project}
                 onChange={(e) => setProject(e.target.value)}
                 required
@@ -239,9 +315,10 @@ export const AddNewCase = () => {
               </select>
             </div>
 
-            <div>
-              <label>Assign To:</label>
+            <div className="form-group mb-3">
+              <label className="form-label">Assign To:</label>
               <select
+                className="form-select"
                 value={assignedTo}
                 onChange={(e) => setAssignedTo(e.target.value)}
                 required
@@ -252,10 +329,11 @@ export const AddNewCase = () => {
               </select>
             </div>
 
-            <div>
-              <div>
-                <label>Status:</label>
+            <div className="form-row">
+              <div className="form-group col-md-4 mb-3">
+                <label className="form-label">Status:</label>
                 <select
+                  className="form-select"
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                 >
@@ -265,9 +343,10 @@ export const AddNewCase = () => {
                 </select>
               </div>
 
-              <div>
-                <label>Priority:</label>
+              <div className="form-group col-md-4 mb-3">
+                <label className="form-label">Priority:</label>
                 <select
+                  className="form-select"
                   value={priority}
                   onChange={(e) => setPriority(e.target.value)}
                 >
@@ -277,9 +356,13 @@ export const AddNewCase = () => {
                 </select>
               </div>
 
-              <div>
-                <label>Type:</label>
-                <select value={type} onChange={(e) => setType(e.target.value)}>
+              <div className="form-group col-md-4 mb-3">
+                <label className="form-label">Type:</label>
+                <select
+                  className="form-select"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                >
                   <option value="Task">Task</option>
                   <option value="Bug">Bug</option>
                   <option value="Feature">Feature</option>
@@ -296,9 +379,13 @@ export const AddNewCase = () => {
             <label className="required form-label">Time Estimated</label>
           </Accordion.Header>
           <Accordion.Body>
-            <div className="form-group">
-              <label>Estimated Time</label> <br />
-              <input type="text" placeholder="Estimated Time" />
+            <div className="form-group mb-3">
+              <label className="form-label">Estimated Time</label> <br />
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Estimated Time"
+              />
             </div>
           </Accordion.Body>
         </Accordion.Item>
@@ -320,11 +407,13 @@ export const AddNewCase = () => {
                     <label className=" form-label">Benchmarking</label>
                   </Accordion.Header>
                   <Accordion.Body>
-                    <div className="benchmarking-section">
-                      <h3>Benchmarking</h3>
-                      <div>
-                        <label>Base:</label>
+                    <div className="benchmarking-section mb-4">
+                      <h3 className="mb-3">Benchmarking</h3>
+
+                      <div className="form-group mb-3">
+                        <label className="form-label">Base:</label>
                         <select
+                          className="form-select"
                           value={base}
                           onChange={(e) => setBase(e.target.value)}
                         >
@@ -333,10 +422,12 @@ export const AddNewCase = () => {
                           <option value="Option2">Option 2</option>
                         </select>
                       </div>
-                      <div>
-                        <label>Benchmark:</label>
+
+                      <div className="form-group mb-3">
+                        <label className="form-label">Benchmark:</label>
                         <input
                           type="text"
+                          className="form-control"
                           value={benchmark}
                           onChange={(e) => setBenchmark(e.target.value)}
                         />
@@ -357,12 +448,13 @@ export const AddNewCase = () => {
                     <label className=" form-label">Type</label>
                   </Accordion.Header>
                   <Accordion.Body>
-                    <div>
-                      <div className="col-xs-5">
+                    Service Type:
+                    <div className="d-flex justify-content-between align-items-start">
+                      <div className="col-5">
                         <select
                           name="from[]"
                           id="multiselect"
-                          className="form-control"
+                          className="form-select"
                           size="8"
                           multiple="multiple"
                           onChange={handleSelectLeft}
@@ -375,43 +467,54 @@ export const AddNewCase = () => {
                         </select>
                       </div>
 
-                      <div className="col-xs-2">
+                      <div className="col-2 d-flex flex-column justify-content-center align-items-center gap-2">
                         <button
                           type="button"
                           id="multiselect_rightAll"
-                          style={{ backgroundColor: "red", color: "white" }}
+                          className="btn btn-sm btn-primary me-2"
                           onClick={moveAllRight}
                         >
-                          <i className="glyphicon glyphicon-forward"></i>
+                          <i className="glyphicon glyphicon-forward">
+                            Move All
+                          </i>
                         </button>
                         <button
                           type="button"
                           id="multiselect_rightSelected"
+                          className="btn btn-secondary"
                           onClick={moveRightSelected}
                         >
-                          <i className="glyphicon glyphicon-chevron-right"></i>
+                          <i className="glyphicon glyphicon-chevron-right">
+                            {" "}
+                            {">>"}{" "}
+                          </i>
                         </button>
                         <button
                           type="button"
                           id="multiselect_leftSelected"
+                          className="btn btn-secondary"
                           onClick={moveLeftSelected}
                         >
-                          <i className="glyphicon glyphicon-chevron-left"></i>
+                          <i className="glyphicon glyphicon-chevron-left">
+                            {"<<"}
+                          </i>
                         </button>
                         <button
                           type="button"
                           id="multiselect_leftAll"
+                          className="btn btn-sm btn-primary me-2"
                           onClick={moveAllLeft}
                         >
-                          <i className="glyphicon glyphicon-backward"></i>
+                          <i className="glyphicon glyphicon-backward">
+                            Remove All
+                          </i>
                         </button>
                       </div>
-
-                      <div className="col-xs-5">
+                      <div className="col-5">
                         <select
                           name="to[]"
                           id="multiselect_to"
-                          className="form-control"
+                          className="form-select"
                           size="8"
                           multiple="multiple"
                           onChange={handleSelectRight}
@@ -429,42 +532,50 @@ export const AddNewCase = () => {
               </Accordion>
             </div>
 
-            <div>
-              <div>
+            <div className="form-section">
+              <div className="form-check mb-3">
                 <input
                   type="checkbox"
                   id="isFreeCase"
+                  className="form-check-input"
                   checked={isFreeCase}
                   onChange={() => setIsFreeCase(!isFreeCase)}
                 />
-                <label htmlFor="isFreeCase">Is Free Case</label>
+                <label htmlFor="isFreeCase" className="form-check-label">
+                  Is Free Case
+                </label>
               </div>
 
-              <div>
+              <div className="form-check mb-3">
                 <input
                   type="checkbox"
                   id="isSampleCase"
+                  className="form-check-input"
                   checked={isSampleCase}
                   onChange={() => setIsSampleCase(!isSampleCase)}
                 />
-                <label htmlFor="isSampleCase">Is Sample Case</label>
+                <label htmlFor="isSampleCase" className="form-check-label">
+                  Is Sample Case
+                </label>
               </div>
 
-              <div>
-                <label>Page Count:</label>
+              <div className="form-group mb-3">
+                <label className="form-label">Page Count:</label>
                 <input
                   type="text"
+                  className="form-control"
                   value={pageCount}
                   onChange={(e) => setPageCount(e.target.value)}
                 />
               </div>
 
-              <div>
-                <label>Case Plus Variable Values:</label>
-                <div>
+              <div className="form-group mb-3">
+                <label className="form-label">Case Plus Variable Values:</label>
+                <div className="d-flex flex-wrap gap-2">
                   <input
                     type="text"
                     name="fixedValue"
+                    className="form-control"
                     placeholder="Fixed Value"
                     value={variableValues.fixedValue}
                     onChange={handleChange}
@@ -472,6 +583,7 @@ export const AddNewCase = () => {
                   <input
                     type="text"
                     name="variable1"
+                    className="form-control"
                     placeholder="Variable Value 1"
                     value={variableValues.variable1}
                     onChange={handleChange}
@@ -479,24 +591,25 @@ export const AddNewCase = () => {
                   <input
                     type="text"
                     name="variable2"
+                    className="form-control"
                     placeholder="Variable Value 2"
                     value={variableValues.variable2}
                     onChange={handleChange}
                   />
                 </div>
-                <div>
+                <div className="d-flex flex-wrap gap-2 mt-2">
                   <input
                     type="text"
                     name="variable3"
+                    className="form-control"
                     placeholder="Variable Value 3"
                     value={variableValues.variable3}
                     onChange={handleChange}
                   />
-                </div>
-                <div>
                   <input
                     type="text"
                     name="variable4"
+                    className="form-control"
                     placeholder="Variable Value 4"
                     value={variableValues.variable4}
                     onChange={handleChange}
@@ -504,46 +617,54 @@ export const AddNewCase = () => {
                   <input
                     type="text"
                     name="variable5"
+                    className="form-control"
                     placeholder="Variable Value 5"
                     value={variableValues.variable5}
                     onChange={handleChange}
                   />
+                </div>
+                <div className="d-flex flex-wrap gap-2 mt-2">
                   <input
                     type="text"
                     name="variable6"
+                    className="form-control"
                     placeholder="Variable Value 6"
                     value={variableValues.variable6}
                     onChange={handleChange}
                   />
-                </div>
-                <div>
                   <input
                     type="text"
                     name="variable7"
+                    className="form-control"
                     placeholder="Variable Value 7"
                     value={variableValues.variable7}
                     onChange={handleChange}
                   />
                 </div>
-                <div>
+                <div className="form-check mt-3">
                   <input
                     type="checkbox"
                     id="finalizeCaseEstimate"
+                    className="form-check-input"
                     checked={finalizeCaseEstimate}
                     onChange={() =>
                       setFinalizeCaseEstimate(!finalizeCaseEstimate)
                     }
                   />
-                  <label htmlFor="finalizeCaseEstimate">
+                  <label
+                    htmlFor="finalizeCaseEstimate"
+                    className="form-check-label"
+                  >
                     Finalize Case Estimate
                   </label>
                 </div>
               </div>
 
-              <div>
-                <label>Followup Date:</label>
+              <div style={{ width: "169px" }}>
+                <label className="required form-label">Followup Date:</label>
                 <input
                   type="date"
+                  className="form-control"
                   value={followUpDate}
                   onChange={(e) => setFollowUpDate(e.target.value)}
                 />
@@ -637,7 +758,7 @@ export const AddNewCase = () => {
       <Accordion defaultActiveKey="0" className="card card-flush accordionCard">
         <Accordion.Item eventKey="0">
           <Accordion.Header>
-            <label className=" form-label">Attach Files To This Case</label>
+            <label className="form-label">Attach Files To This Case</label>
           </Accordion.Header>
           <Accordion.Body>
             <div>
@@ -650,8 +771,24 @@ export const AddNewCase = () => {
                 pages patch pdf png pps ppt pptx psd rar svg swf template tif
                 tgz txt vsd wav wmv xls xlsx zip 7z.
               </label>
-              <input type="file" id="myfile" name="myfile" />
+              <input
+                type="file"
+                id="myfile"
+                name="myfile"
+                multiple
+                onChange={handleFileChange}
+              />
             </div>
+            {files.length > 0 && (
+              <div>
+                <p>Files to be uploaded:</p>
+                <ul>
+                  {Array.from(files).map((file, index) => (
+                    <li key={index}>{file.name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
@@ -662,6 +799,10 @@ export const AddNewCase = () => {
         </button>
       </div>
 
+      <Toaster />
     </>
   );
 };
+
+// File-Path to Upload Cases (Testing): /home/neuralit/TestingUploads
+// File-Path to Upload Cases (Production): /neuralit/files/case_files

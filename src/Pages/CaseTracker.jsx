@@ -51,7 +51,7 @@ export const CaseTracker = () => {
       const response = await logout();
       if (response.status === 200) {
         toast.success(response.data.message || "Logout successful!");
-        setTimeout(() => navigate("/login"), 500);
+        setTimeout(() => navigate("/"), 500);
       } else {
         toast.error(response.data.message || "Logout failed");
       }
@@ -277,7 +277,7 @@ export const CaseTracker = () => {
                       {isSubMenuVisible && (
                         <div>
                           <div className="menu-item">
-                            <a className="menu-link" href="#">
+                            <a className="menu-link">
                               <span className="menu-icon">
                                 <i className="nit-dt nit-rocket fs-2">
                                   <span className="path1"></span>
@@ -288,7 +288,7 @@ export const CaseTracker = () => {
                             </a>
                           </div>
                           <div className="menu-item" onClick={ProjectTracker}>
-                            <a className="menu-link" href="#">
+                            <a className="menu-link" >
                               <span className="menu-icon">
                                 <i className="nit-dt nit-rocket fs-2">
                                   <span className="path1"></span>
@@ -299,7 +299,7 @@ export const CaseTracker = () => {
                             </a>
                           </div>
                           <div className="menu-item">
-                            <a className="menu-link" href="#">
+                            <a className="menu-link" >
                               <span className="menu-icon">
                                 <i className="nit-dt nit-file-added fs-2">
                                   <span className="path1"></span>
@@ -312,7 +312,7 @@ export const CaseTracker = () => {
                             </a>
                           </div>
                           <div className="menu-item">
-                            <a className="menu-link" href="#">
+                            <a className="menu-link">
                               <span className="menu-icon">
                                 <i className="nit-dt nit-credit-cart fs-2">
                                   <span className="path1"></span>

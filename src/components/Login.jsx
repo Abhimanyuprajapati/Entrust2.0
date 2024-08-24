@@ -13,9 +13,9 @@ import { Estimate } from "./login/Estimate";
 const Login = () => {
   const navigate = useNavigate();
   const { loginWithEmail, forgotPassword } = useAuth();
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [forgot, setForgot] = useState(true);
-  const [forgotemail, setForgotemail] = useState({ email: "" });
+  const [forgotemail, setForgotemail] = useState({ username: "" });
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -26,9 +26,9 @@ const Login = () => {
     }
   };
 
-  const validateCredentials = ({ email, password }) => {
+  const validateCredentials = ({ username, password }) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
+    if (!username || !emailRegex.test(username)) {
       toast.error("Please enter a valid email address");
       return false;
     }
@@ -39,9 +39,9 @@ const Login = () => {
     return true;
   };
 
-  const validateEmail = (email) => {
+  const validateEmail = (username) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
+    if (!username || !emailRegex.test(username)) {
       toast.error("Please enter a valid email address");
       return false;
     }
@@ -55,6 +55,7 @@ const Login = () => {
     }
     try {
       const response = await loginWithEmail(credentials);
+      console.log(response)
       if (response.status === 200) {
         toast.success(response.data.message || "Login successful!");
         setTimeout(() => navigate("/dashboard"), 500);
@@ -68,11 +69,11 @@ const Login = () => {
 
   const handleForgot = async (e) => {
     e.preventDefault();
-    if (!validateEmail(forgotemail.email)) {
+    if (!validateEmail(forgotemail.username)) {
       return;
     }
     try {
-      const response = await forgotPassword(forgotemail.email);
+      const response = await forgotPassword(forgotemail.username);
       if (response.status === 200) {
         toast.success(
           response.data.message || "Reset instructions sent to email"
@@ -190,9 +191,9 @@ const Login = () => {
                     <input
                       className="form-control form-control-lg form-control-solid"
                       type="email"
-                      name="email"
+                      name="username"
                       placeholder="Email"
-                      value={forgot ? credentials.email : forgotemail.email}
+                      value={forgot ? credentials.username : forgotemail.username}
                       onChange={handleChange}
                       required
                     />
