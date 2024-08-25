@@ -90,7 +90,7 @@ export const Dashboard = () => {
   const handleCaseTrackerClick = () => navigate("/dashboard/casetracker");
   const handleProjectTrackerClick = () => navigate("/dashboard/projecttracker");
 
-
+// this is form route tracking 
   const getPageTitle = () => {
     switch (location.pathname) {
       case "/dashboard":
